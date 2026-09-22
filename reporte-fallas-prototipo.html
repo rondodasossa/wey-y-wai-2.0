@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reporte de Fallas — Prototipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #14335C;
+    --navy-dark: #0D2340;
+    --yellow: #FFC63C;
+    --yellow-dark: #E8AE1F;
+    --bg-app: #EAF2FB;
+    --card: #FFFFFF;
+    --text: #16213B;
+    --text-soft: #5A6B85;
+    --border: #D6E2F0;
+    --danger: #E0563F;
+    --ok: #1FA35C;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg-page: #0B1220;
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: #0B1220;
+    background-image: radial-gradient(circle at 20% 15%, #16294a 0%, #0B1220 55%);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    padding: 32px 16px;
+  }
+  .headline {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+  }
+
+  /* ---------- Phone frame ---------- */
+  .stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+  .stage-label {
+    color: #9FB4D6;
+    font-size: 13px;
+    letter-spacing: .02em;
+  }
+  .phone {
+    width: 340px;
+    max-width: 92vw;
+    height: 700px;
+    max-height: 82vh;
+    background: var(--bg-app);
+    border-radius: 34px;
+    border: 8px solid #0D1526;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 20px;
+    background: #0D1526;
+    border-radius: 0 0 14px 14px;
+    z-index: 20;
+  }
+
+  /* ---------- Screens ---------- */
+  .screen {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    animation: fadeSlide .32s ease;
+  }
+  .screen.active { display: flex; }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    background: var(--navy);
+    color: #fff;
+    padding: 18px 16px 14px;
+    padding-top: calc(18px + env(safe-area-inset-top, 0px));
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .topbar .menu-icon, .topbar .back-icon {
+    width: 22px; height: 16px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    cursor: pointer;
+  }
+  .menu-icon span { height: 2px; background: #fff; border-radius: 2px; }
+  .back-icon {
+    width: 22px; height: 22px;
+    flex-direction: row; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .topbar h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    flex: 1;
+  }
+  .avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--yellow);
+    flex-shrink: 0;
+  }
+
+  /* ---------- Body content ---------- */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .eyebrow { color: var(--text-soft); font-size: 13px; margin: 0 0 2px; }
+  .content h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 21px;
+    margin: 0 0 4px;
+    color: var(--navy-dark);
+  }
+  label.field-label {
+    font-size: 12.5px;
+    color: var(--text-soft);
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2px;
+  }
+  input[type="text"], input[type="password"], textarea {
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    border-radius: 10px;
+    padding: 11px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    outline-offset: 2px;
+  }
+  input:focus-visible, textarea:focus-visible, button:focus-visible, .checkbox-row:focus-within {
+    outline: 2px solid var(--navy);
+  }
+  textarea { resize: none; min-height: 74px; }
+  .error-msg {
+    display: none;
+    font-size: 12.5px;
+    color: var(--danger);
+    margin-top: 4px;
+  }
+  .field.invalid input, .field.invalid textarea { border-color: var(--danger); }
+  .field.invalid .error-msg { display: block; }
+
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13.5px;
+    border-radius: 6px;
+  }
+  .checkbox-row input { width: 16px; height: 16px; accent-color: var(--navy); }
+
+  .btn-primary {
+    background: var(--yellow);
+    color: var(--navy-dark);
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-weight: 700;
+    font-size: 14.5px;
+    font-family: 'Space Grotesk', sans-serif;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: transform .12s ease, background .15s ease;
+  }
+  .btn-primary:hover { background: var(--yellow-dark); }
+  .btn-primary:active { transform: scale(.98); }
+
+  .link-secondary {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--navy);
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px;
+    font-family: inherit;
+  }
+
+  .divider-note {
+    margin-top: auto;
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--text-soft);
+    padding-top: 10px;
+  }
+
+  /* Confirmation screen */
+  .confirm-wrap {
+    align-items: center;
+    text-align: center;
+    justify-content: flex-start;
+    padding-top: 30px;
+  }
+  .check-circle {
+    width: 84px; height: 84px;
+    border-radius: 50%;
+    background: var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+    margin: 6px auto 4px;
+  }
+  .check-circle svg { width: 40px; height: 40px; }
+  .confirm-wrap h2 { font-size: 18px; margin-top: 6px; }
+  .ticket-box {
+    background: var(--card);
+    border: 1.5px dashed var(--navy);
+    border-radius: 10px;
+    padding: 14px;
+    width: 100%;
+    margin-top: 6px;
+  }
+  .ticket-box .ticket-id {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--navy-dark);
+    letter-spacing: .04em;
+  }
+  .ticket-box .ticket-sub { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+  .detail-list {
+    width: 100%;
+    text-align: left;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .detail-row {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 11px;
+    font-size: 12.5px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .detail-row span:first-child { color: var(--text-soft); }
+  .detail-row span:last-child { font-weight: 600; text-align: right; }
+
+  /* Bottom nav */
+  .bottomnav {
+    background: var(--yellow);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 8px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    flex-shrink: 0;
+  }
+  .bottomnav button {
+    background: none;
+    border: none;
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--navy-dark);
+    opacity: .55;
+  }
+  .bottomnav button.active { opacity: 1; background: rgba(20,51,92,.14); }
+
+  .hint-bar {
+    width: 340px; max-width: 92vw;
+    text-align: center;
+    color: #7A8CB0;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="stage-label">Prototipo interactivo · Reporte de Fallas de Red</div>
+
+  <div class="phone">
+    <div class="notch"></div>
+
+    <!-- PANTALLA 1: LOGIN -->
+    <section class="screen active" id="screen-login" aria-label="Pantalla de inicio de sesión">
+      <div class="topbar">
+        <div class="menu-icon" aria-hidden="true"><span></span><span></span><span></span></div>
+        <h1>Mis Reportes</h1>
+        <div class="avatar"></div>
+      </div>
+      <div class="content">
+        <p class="eyebrow">Bienvenido/a, profesor/a</p>
+        <h2>Inicia sesión para continuar</h2>
+
+        <form id="login-form" novalidate>
+          <div class="field" id="field-user">
+            <label class="field-label" for="usuario">Usuario</label>
+            <input type="text" id="usuario" placeholder="ej. jperez">
+            <span class="error-msg">Ingresa tu usuario para continuar.</span>
+          </div>
+          <div class="field" id="field-pass" style="margin-top:10px;">
+            <label class="field-label" for="clave">Contraseña</label>
+            <input type="password" id="clave" placeholder="••••••••">
+            <span class="error-msg">Ingresa tu contraseña para continuar.</span>
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%;">Iniciar sesión</button>
+        </form>
+        <button class="link-secondary" type="button" onclick="alert('Escribe a soporte@colegio.cl para recuperar tu acceso.')">¿Olvidaste tu contraseña?</button>
+
+        <div class="divider-note">Reporta fallas de red del colegio en minutos</div>
+      </div>
+      <nav class="bottomnav">
+        <button class="active" aria-label="Inicio" onclick="goTo('screen-login')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 11L12 3l9 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button aria-label="Reportes" disabled style="opacity:.25;cursor:not-allowed;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5h11v14H4V9l5-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </button>
+        <button aria-label="Perfil" disabled style="opacity:.25;cursor:not-allowed;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c1.5-4 6-5 8-5s6.5 1 8 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </nav>
+    </section>
+
+    <!-- PANTALLA 2: NUEVO REPORTE -->
+    <section class="screen" id="screen-report" aria-label="Pantalla de nuevo reporte">
+      <div class="topbar">
+        <div class="back-icon" role="button" aria-label="Volver" onclick="goTo('screen-login')">←</div>
+        <h1>Nuevo reporte</h1>
+        <div class="avatar"></div>
+      </div>
+      <div class="content">
+        <p class="eyebrow">Reportar falla</p>
+        <h2>Cuéntanos qué problema tuviste</h2>
+
+        <form id="report-form" novalidate>
+          <div class="field-label" style="margin-top:2px;">Tipo de problema</div>
+          <div class="checkbox-group" id="checkbox-group">
+            <label class="checkbox-row"><input type="checkbox" name="tipo" value="Proyector"> Proyector no enciende</label>
+            <label class="checkbox-row"><input type="checkbox" name="tipo" value="WiFi"> Sin conexión WiFi</label>
+            <label class="checkbox-row"><input type="checkbox" name="tipo" value="PC sala"> PC de sala con falla</label>
+            <label class="checkbox-row"><input type="checkbox" name="tipo" value="Otro"> Otro</label>
+          </div>
+          <span class="error-msg" id="checkbox-error">Selecciona al menos un tipo de problema.</span>
+
+          <div class="field" id="field-desc" style="margin-top:10px;">
+            <label class="field-label" for="descripcion">Describe el problema</label>
+            <textarea id="descripcion" placeholder="Ej: El proyector de la sala 204 no proyecta imagen desde esta mañana."></textarea>
+            <span class="error-msg">Agrega una breve descripción para que soporte entienda el problema.</span>
+          </div>
+
+          <button type="submit" class="btn-primary" style="width:100%;">Enviar reporte</button>
+        </form>
+      </div>
+      <nav class="bottomnav">
+        <button aria-label="Inicio" onclick="goTo('screen-login')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 11L12 3l9 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="active" aria-label="Reportes">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5h11v14H4V9l5-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </button>
+        <button aria-label="Perfil" disabled style="opacity:.25;cursor:not-allowed;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c1.5-4 6-5 8-5s6.5 1 8 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </nav>
+    </section>
+
+    <!-- PANTALLA 3: CONFIRMACIÓN -->
+    <section class="screen" id="screen-confirm" aria-label="Pantalla de confirmación">
+      <div class="topbar">
+        <div class="back-icon" role="button" aria-label="Volver" onclick="goTo('screen-report')">←</div>
+        <h1>Nuevo reporte</h1>
+        <div class="avatar"></div>
+      </div>
+      <div class="content confirm-wrap">
+        <div class="check-circle">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 12l6 6L20 6" stroke="#14335C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>Ticket de red enviado con éxito</h2>
+        <div class="ticket-box">
+          <div class="ticket-id" id="ticket-id">TCK-0000</div>
+          <div class="ticket-sub">Guarda este código para hacer seguimiento</div>
+        </div>
+        <div class="detail-list" id="detail-list"></div>
+        <button class="btn-primary" style="width:100%;margin-top:18px;" onclick="resetAndGoLogin()">Volver al inicio</button>
+      </div>
+      <nav class="bottomnav">
+        <button aria-label="Inicio" onclick="resetAndGoLogin()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 11L12 3l9 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button aria-label="Reportes" onclick="goTo('screen-report')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5h11v14H4V9l5-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="active" aria-label="Perfil">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c1.5-4 6-5 8-5s6.5 1 8 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </nav>
+    </section>
+
+  </div>
+  <div class="hint-bar">Todos los botones y enlaces son funcionales: valida datos, evita pantallas sin salida y navega entre las 3 vistas.</div>
+</div>
+
+<script>
+  function goTo(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelector('.phone').scrollTop = 0;
+  }
+
+  function clearError(fieldEl) {
+    fieldEl.classList.remove('invalid');
+  }
+
+  // LOGIN validation
+  const loginForm = document.getElementById('login-form');
+  const userInput = document.getElementById('usuario');
+  const passInput = document.getElementById('clave');
+  const fieldUser = document.getElementById('field-user');
+  const fieldPass = document.getElementById('field-pass');
+
+  userInput.addEventListener('input', () => clearError(fieldUser));
+  passInput.addEventListener('input', () => clearError(fieldPass));
+
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let valid = true;
+    if (!userInput.value.trim()) { fieldUser.classList.add('invalid'); valid = false; }
+    if (!passInput.value.trim()) { fieldPass.classList.add('invalid'); valid = false; }
+    if (valid) goTo('screen-report');
+  });
+
+  // REPORT validation
+  const reportForm = document.getElementById('report-form');
+  const descInput = document.getElementById('descripcion');
+  const fieldDesc = document.getElementById('field-desc');
+  const checkboxGroup = document.getElementById('checkbox-group');
+  const checkboxError = document.getElementById('checkbox-error');
+  const checkboxes = () => Array.from(document.querySelectorAll('input[name="tipo"]'));
+
+  descInput.addEventListener('input', () => clearError(fieldDesc));
+  checkboxGroup.addEventListener('change', () => { checkboxError.style.display = 'none'; });
+
+  reportForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let valid = true;
+    const selected = checkboxes().filter(c => c.checked).map(c => c.value);
+    if (selected.length === 0) { checkboxError.style.display = 'block'; valid = false; }
+    if (!descInput.value.trim()) { fieldDesc.classList.add('invalid'); valid = false; }
+    if (!valid) return;
+
+    const ticketId = 'TCK-' + Math.floor(1000 + Math.random() * 9000);
+    document.getElementById('ticket-id').textContent = ticketId;
+    document.getElementById('detail-list').innerHTML = `
+      <div class="detail-row"><span>Tipo de falla</span><span>${selected.join(', ')}</span></div>
+      <div class="detail-row"><span>Reportado por</span><span>${userInput.value.trim() || 'Docente'}</span></div>
+      <div class="detail-row"><span>Estado</span><span>Recibido</span></div>
+    `;
+    goTo('screen-confirm');
+  });
+
+  function resetAndGoLogin() {
+    reportForm.reset();
+    checkboxError.style.display = 'none';
+    goTo('screen-login');
+  }
+</script>
+</body>
+</html>
